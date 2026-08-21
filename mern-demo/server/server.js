@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config();
+const cors = require('cors');
+require('dotenv').config({ path: __dirname + '/.env' });
 
 const Student = require('./models/Student');
 
@@ -8,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(cors());
 
 // Kết nối MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI)

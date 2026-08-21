@@ -4,11 +4,12 @@ import axios from 'axios';
 function App() {
   const [students, setStudents] = useState([]);
   const [formData, setFormData] = useState({ studentId: '', name: '', email: '' });
+  const [editingId, setEditingId] = useState(null);
 
   // Lấy danh sách sinh viên từ Backend API (Câu 47)
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/students');
+      const res = await axios.get('/api/students');
       setStudents(res.data);
     } catch (err) {
       console.error('Lỗi lấy danh sách sinh viên:', err);
@@ -23,11 +24,42 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/students', formData);
+      if (editingId) {
+        await axios.put(`/api/students/${editingId}`, formData);
+      } else {
+        await axios.post('/api/students', formData);
+      }
       setFormData({ studentId: '', name: '', email: '' });
+      setEditingId(null);
       fetchStudents();
     } catch (err) {
       console.error('Lỗi thêm sinh viên:', err);
+    }
+  };
+
+  const handleEdit = (student) => {
+    setEditingId(student._id);
+    setFormData({
+      studentId: student.studentId,
+      name: student.name,
+      email: student.email,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ studentId: '', name: '', email: '' });
+  };
+
+  const handleDelete = async (student) => {
+    if (!window.confirm(`Bạn có chắc muốn xóa ${student.name}?`)) return;
+
+    try {
+      await axios.delete(`/api/students/${student._id}`);
+      if (editingId === student._id) handleCancelEdit();
+      fetchStudents();
+    } catch (err) {
+      console.error('Lỗi xóa sinh viên:', err);
     }
   };
 
@@ -60,15 +92,31 @@ function App() {
           required
           style={{ marginLeft: '10px' }}
         />
-        <button type="submit" style={{ marginLeft: '10px' }}>Thêm Sinh Viên</button>
+        <button type="submit" style={{ marginLeft: '10px' }}>
+          {editingId ? 'Cập nhật Sinh Viên' : 'Thêm Sinh Viên'}
+        </button>
+        {editingId && (
+          <button type="button" onClick={handleCancelEdit} style={{ marginLeft: '10px' }}>
+            Hủy
+          </button>
+        )}
       </form>
 
       {/* Hiển thị danh sách sinh viên (Câu 47) */}
       <h3>Danh Sách Sinh Viên</h3>
+      <button type="button" onClick={fetchStudents} style={{ marginBottom: '10px' }}>
+        Tải lại danh sách
+      </button>
       <ul>
         {students.map((sv) => (
           <li key={sv._id}>
             {sv.studentId} - {sv.name} ({sv.email})
+            <button type="button" onClick={() => handleEdit(sv)} style={{ marginLeft: '10px' }}>
+              Sửa
+            </button>
+            <button type="button" onClick={() => handleDelete(sv)} style={{ marginLeft: '10px' }}>
+              Xóa
+            </button>
           </li>
         ))}
       </ul>

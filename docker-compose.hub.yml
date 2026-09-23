@@ -1,0 +1,27 @@
+services:
+  backend:
+    image: ${DOCKERHUB_USERNAME:-thanhbao2408}/mern-backend:latest
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/mern_demo}
+    depends_on:
+      - mongodb
+
+  frontend:
+    image: ${DOCKERHUB_USERNAME:-thanhbao2408}/mern-frontend:2.0
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:

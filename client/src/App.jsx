@@ -6,11 +6,21 @@ function App() {
   const [formData, setFormData] = useState({ studentId: '', name: '', email: '' });
   const [editingId, setEditingId] = useState(null);
 
-  // Lấy danh sách sinh viên từ Backend API (Câu 47)
+  // Lấy danh sách sinh viên từ Backend API (Xử lý an toàn chống lỗi e.map)
   const fetchStudents = async () => {
     try {
       const res = await axios.get('/api/students');
-      setStudents(res.data);
+      // Kiểm tra linh hoạt dữ liệu trả về từ backend
+      const resultData = res.data;
+      if (Array.isArray(resultData)) {
+        setStudents(resultData);
+      } else if (resultData && Array.isArray(resultData.data)) {
+        setStudents(resultData.data);
+      } else if (resultData && Array.isArray(resultData.students)) {
+        setStudents(resultData.students);
+      } else {
+        setStudents([]);
+      }
     } catch (err) {
       console.error('Lỗi lấy danh sách sinh viên:', err);
     }
@@ -20,7 +30,7 @@ function App() {
     fetchStudents();
   }, []);
 
-  // Xử lý gửi Form thêm sinh viên mới (Câu 48 & 49)
+  // Xử lý gửi Form thêm sinh viên mới
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -67,7 +77,7 @@ function App() {
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h2>Quản Lý Sinh Viên - Phiên bản 2.0</h2>
       
-      {/* Form nhập sinh viên (Câu 48) */}
+      {/* Form nhập sinh viên */}
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
         <input
           type="text"
@@ -102,14 +112,14 @@ function App() {
         )}
       </form>
 
-      {/* Hiển thị danh sách sinh viên (Câu 47) */}
+      {/* Hiển thị danh sách sinh viên */}
       <h3>Danh Sách Sinh Viên</h3>
       <button type="button" onClick={fetchStudents} style={{ marginBottom: '10px' }}>
         Tải lại danh sách
       </button>
       <ul>
-        {students.map((sv) => (
-          <li key={sv._id}>
+        {Array.isArray(students) && students.map((sv) => (
+          <li key={sv._id || sv.studentId}>
             {sv.studentId} - {sv.name} ({sv.email})
             <button type="button" onClick={() => handleEdit(sv)} style={{ marginLeft: '10px' }}>
               Sửa

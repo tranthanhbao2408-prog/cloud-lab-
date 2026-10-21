@@ -16,6 +16,13 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Đã kết nối thành công với MongoDB Atlas!'))
   .catch((err) => console.error('Lỗi kết nối MongoDB:', err));
 
+// --- THÊM ĐOẠN NÀY VÀO ĐÂY ---
+// Route gốc tự động chuyển hướng sang trang danh sách sinh viên
+app.get('/', (req, res) => {
+  res.redirect('/api/students');
+});
+// -----------------------------
+
 // Câu 36: GET /api/students - Lấy danh sách sinh viên
 app.get('/api/students', async (req, res) => {
   try {

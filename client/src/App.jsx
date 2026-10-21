@@ -75,8 +75,7 @@ function App() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h2>Quản Lý Sinh Viên - Phiên bản 2.0</h2>
-      
+     <h2>Quản Lý Sinh Viên - Phiên bản 2.0 - Production Cloud PaaS</h2>
       {/* Form nhập sinh viên */}
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
         <input
@@ -119,7 +118,7 @@ function App() {
       </button>
       <ul>
         {Array.isArray(students) && students.map((sv) => (
-          <li key={sv._id || sv.studentId}>
+          <li key={sv._id || sv.studentId} style={{ marginBottom: '8px' }}>
             {sv.studentId} - {sv.name} ({sv.email})
             <button type="button" onClick={() => handleEdit(sv)} style={{ marginLeft: '10px' }}>
               Sửa
